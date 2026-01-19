@@ -1,0 +1,563 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import { 
+  ShieldCheck, Home, User, Key, FileText, AlertCircle, CheckCircle2,
+  ChevronDown, ChevronUp, Mail, Info, Instagram, Scale,
+  Gavel, Briefcase, Users, ScrollText, Archive, MousePointerClick,
+  Check, MessageSquareQuote, Droplets, Zap, Paintbrush, Receipt, 
+  ShieldAlert, Menu, X, MessageCircle
+} from 'lucide-react';
+
+const colors = {
+  gold: '#C5A059',
+  black: '#1A1A1A',
+  grayLight: '#F5F5F5',
+  grayDark: '#3A3A3A',
+  white: '#FFFFFF'
+};
+
+const faqData = [
+  {
+    q: "O proprietário pode ingressar no imóvel sem autorização prévia?",
+    a: "Não. A posse direta pertence ao locatário (art. 23, IX). O ingresso do locador para vistoria ou exibição do imóvel a terceiros depende de consentimento expresso ou aviso prévio com dia e hora marcados, respeitando a privacidade e a inviolabilidade do domicílio prevista constitucionalmente."
+  },
+  {
+    q: "A pintura nova na entrega das chaves é uma obrigação absoluta?",
+    a: "Não necessariamente. A lei prevê a devolução no estado em que o imóvel foi recebido, ressalvadas as deteriorações do uso normal (art. 23, III). A exigência de pintura nova vincula-se à existência de cláusula contratual expressa e à comprovação de que o imóvel foi entregue com pintura nova no início da locação."
+  },
+  {
+    q: "Quem responde por reparos em vazamentos e infiltrações?",
+    a: "Diferencia-se a origem: se o problema for estrutural (colunas do edifício, tubulação principal ou desgaste natural do tempo), a obrigação é do locador (art. 22). Se o dano decorrer do uso diário ou falta de manutenção preventiva superficial (sifões, vedações de torneiras ou mau uso), a responsabilidade recai sobre o locatário."
+  },
+  {
+    q: "Como funciona a multa em caso de rescisão antecipada?",
+    a: "Conforme o art. 4º da Lei do Inquilinato, o locatário pode rescindir o contrato a qualquer tempo pagando a multa pactuada, mas esta deve ser calculada de forma proporcional ao período de cumprimento do contrato, vedada a cobrança integral do valor fixado."
+  },
+  {
+    q: "O IPTU e o Seguro Incêndio podem ser repassados ao inquilino?",
+    a: "Sim. Embora o art. 22 indique originalmente o locador como responsável, a própria legislação permite a livre pactuação para que o locatário assuma esses encargos. Sem previsão contratual escrita e clara, a cobrança torna-se indevida."
+  }
+];
+
+const pilaresData = [
+  {
+    id: 1,
+    title: "Segurança Jurídica",
+    desc: "A fundação de qualquer negócio imobiliário.",
+    items: ["Contratos personalizados alinhados à legislação vigente", "Respeito rigoroso à Lei do Inquilinato e Código Civil", "Mitigação de riscos e preservação do patrimônio"],
+    footer: "A segurança começa na elaboração, não na execução.",
+    icon: <ShieldCheck size={24} />
+  },
+  {
+    id: 2,
+    title: "Clareza Contratual",
+    desc: "O que é bem definido não gera litígio.",
+    items: ["Direitos e deveres delimitados de forma objetiva", "Regras claras sobre manutenção e conservação", "Linguagem técnica, porém acessível e sem ambiguidades"],
+    footer: "Contratos transparentes blindam ambas as partes.",
+    icon: <ScrollText size={24} />
+  },
+  {
+    id: 3,
+    title: "Responsabilidade das Partes",
+    desc: "O equilíbrio entre deveres e obrigações.",
+    items: ["Proporcionalidade nos encargos financeiros", "Zelo contínuo pelo vínculo contratual", "Cumprimento ético das obrigações assumidas"],
+    footer: "A harmonia da locação depende da conduta recíproca.",
+    icon: <Users size={24} />
+  },
+  {
+    id: 4,
+    title: "Boa-fé e Equilíbrio",
+    desc: "O princípio norteador do Direito Civil.",
+    items: ["Lealdade e cooperação mútua", "Condutas previsíveis e razoáveis", "Tratamento ético em todas as fases do contrato"],
+    footer: "A boa-fé é a maior ferramenta de prevenção.",
+    icon: <Scale size={24} />
+  },
+  {
+    id: 5,
+    title: "Prevenção de Conflitos",
+    desc: "Antecipação de cenários sensíveis.",
+    items: ["Gestão de incidentes previamente definida", "Comunicação documentada e objetiva", "Resolução estratégica de divergências"],
+    footer: "Prevenir conflitos protege tempo e capital.",
+    icon: <Gavel size={24} />
+  },
+  {
+    id: 6,
+    title: "Organização e Prova",
+    desc: "A evidência como proteção patrimonial.",
+    items: ["Vistorias minuciosas e laudos técnicos", "Formalização de todas as tratativas relevantes", "Gestão documental organizada e acessível"],
+    footer: "No Direito, o que não se prova, não existe.",
+    icon: <Archive size={24} />
+  },
+  {
+    id: 7,
+    title: "Orientação Técnica",
+    desc: "A inteligência por trás da locação.",
+    items: ["Análise jurídica estratégica e preventiva", "Suporte em decisões de alta relevância", "Redução drástica de insegurança jurídica"],
+    footer: "Locação segura é fruto de inteligência jurídica.",
+    icon: <Briefcase size={24} />
+  }
+];
+
+const Logo = ({ small = false }) => {
+  const containerSize = small ? 'w-10 h-10' : 'w-24 h-24';
+  const fontSize = small ? 'text-base' : 'text-4xl';
+  const textColor = 'text-[#C5A059]';
+  const borderColor = 'border-[#C5A059]';
+
+  return (
+    <div className={`flex flex-col items-center justify-center ${small ? 'mb-0' : 'mb-8'}`}>
+      <div 
+        className={`${containerSize} border-2 rounded-full flex items-center justify-center transition-all duration-500 hover:scale-105 ${borderColor}`}
+      >
+        <span className={`font-serif font-light tracking-tighter ${fontSize} ${textColor}`}>
+          GM
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  const [activeFaq, setActiveFaq] = useState(null);
+  const [selectedPilar, setSelectedPilar] = useState(pilaresData[0]);
+  const [scrolled, setScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 100);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const toggleFaq = useCallback((index) => {
+    setActiveFaq(prev => prev === index ? null : index);
+  }, []);
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+    setIsMenuOpen(false);
+  };
+
+  return (
+    <div className="min-h-screen font-sans text-gray-900 selection:bg-gold selection:text-white" style={{ backgroundColor: colors.grayLight }}>
+      
+      {/* NAVBAR STICKY */}
+      <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white shadow-lg py-3' : 'bg-transparent py-6'}`}>
+        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+          <div className="cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <Logo small />
+          </div>
+          
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex gap-8 text-[10px] uppercase tracking-[0.2em] font-medium">
+            {['Pilares', 'Deveres', 'FAQ', 'Checklist', 'Contato'].map((item) => (
+              <button 
+                key={item} 
+                onClick={() => scrollToSection(item.toLowerCase())}
+                className={`transition-colors hover:text-gold ${scrolled ? 'text-black' : 'text-white'}`}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X style={{ color: colors.gold }} /> : <Menu style={{ color: scrolled ? colors.black : colors.white }} />}
+          </button>
+        </div>
+
+        {/* Mobile Nav Overlay */}
+        {isMenuOpen && (
+          <div className="absolute top-0 left-0 w-full h-screen bg-black flex flex-col items-center justify-center gap-10 z-40">
+            {['Pilares', 'Deveres', 'FAQ', 'Checklist', 'Contato'].map((item) => (
+              <button 
+                key={item} 
+                onClick={() => scrollToSection(item.toLowerCase())}
+                className="text-white text-2xl font-serif tracking-widest hover:text-gold"
+              >
+                {item}
+              </button>
+            ))}
+            <button onClick={() => setIsMenuOpen(false)} className="mt-10"><X size={40} style={{ color: colors.gold }} /></button>
+          </div>
+        )}
+      </header>
+
+      {/* CAPA */}
+      <section className="min-h-screen flex items-center justify-center p-8 text-center" style={{ backgroundColor: colors.black }}>
+        <div className="border border-opacity-30 p-10 md:p-24 relative animate-in fade-in zoom-in duration-1000" style={{ borderColor: colors.gold }}>
+          <Logo />
+          <h2 className="uppercase tracking-[0.4em] text-xs mb-6" style={{ color: colors.gold }}>
+            Consultoria Jurídica Estratégica
+          </h2>
+          <h1 className="text-4xl md:text-6xl font-serif mb-8 text-white leading-tight">
+            Cartilha de Obrigações do <br />
+            <span style={{ color: colors.gold }}>Locador e do Locatário</span>
+          </h1>
+          <p className="text-gray-400 italic max-w-xl mx-auto mb-12 text-lg font-light leading-relaxed">
+            Diretrizes técnicas para a governança e segurança das relações locatícias urbanas.
+          </p>
+          <div className="h-px w-24 mx-auto mb-10" style={{ backgroundColor: colors.gold }}></div>
+          <p className="text-white tracking-[0.2em] uppercase font-serif text-xl">
+            Dra. Gabriela Macedo
+          </p>
+        </div>
+      </section>
+
+      {/* EQUILÍBRIO */}
+      <section id="equilibrio" className="max-w-4xl mx-auto py-32 px-6">
+        <div className="flex flex-col md:flex-row gap-16 items-start animate-in slide-in-from-bottom-10 duration-700">
+          <div className="flex-shrink-0 relative">
+            <Scale size={70} style={{ color: colors.gold }} />
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full border border-gold bg-white flex items-center justify-center shadow-md" style={{ borderColor: colors.gold }}>
+              <Check size={16} style={{ color: colors.gold }} />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-3xl font-serif mb-8 text-black border-b-2 pb-4 inline-block" style={{ borderColor: colors.gold }}>O Equilíbrio da Relação Contratual</h2>
+            <p className="text-gray-600 leading-relaxed text-lg text-justify font-light">
+              A estabilidade nas relações imobiliárias reside na clareza do pactuado e na observância estrita das normas vigentes. Uma locação bem estruturada é aquela onde as partes compreendem seus limites e responsabilidades antes mesmo da entrega das chaves.
+              <br /><br />
+              Este material possui <strong>caráter estritamente informativo e preventivo</strong>, desenhado para oferecer um panorama técnico das relações locatícias sob a ótica da Lei Federal nº 8.245/91. Salientamos que o conteúdo aqui exposto <strong>não substitui a análise jurídica estratégica</strong>, indispensável para a elaboração de contratos resilientes e personalizados.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* PILARES */}
+      <section id="pilares" className="py-28 px-6 bg-white border-y border-gray-100 shadow-sm">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-serif text-black uppercase tracking-widest">Pilares da Locação Segura</h2>
+            <div className="flex justify-center items-center gap-2 mt-6 text-gray-400 text-sm">
+              <MousePointerClick size={16} style={{ color: colors.gold }} /> <span>Explore as bases de uma gestão imobiliária eficiente</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row gap-12 min-h-[550px]">
+            {/* MENU LATERAL */}
+            <div className="lg:w-1/3 flex flex-col gap-3">
+              {pilaresData.map((pilar) => (
+                <button
+                  key={pilar.id}
+                  onClick={() => setSelectedPilar(pilar)}
+                  className={`flex items-center gap-5 p-5 text-left transition-all duration-300 rounded-xl border-l-4 ${
+                    selectedPilar.id === pilar.id 
+                    ? 'bg-gray-50 border-l-gold shadow-sm translate-x-2' 
+                    : 'border-l-transparent hover:bg-gray-50 text-gray-400'
+                  }`}
+                  style={{ borderLeftColor: selectedPilar.id === pilar.id ? colors.gold : 'transparent' }}
+                >
+                  <div className="transition-transform duration-300" style={{ color: selectedPilar.id === pilar.id ? colors.gold : '#CCC' }}>
+                    {pilar.icon}
+                  </div>
+                  <span className={`font-serif tracking-wide text-lg ${selectedPilar.id === pilar.id ? 'text-black font-semibold' : 'text-gray-500'}`}>
+                    {pilar.title}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* CONTEÚDO DINÂMICO */}
+            <div className="lg:w-2/3 bg-gray-50 p-12 rounded-3xl border border-gray-100 relative overflow-hidden flex flex-col justify-center">
+               <div className="absolute -top-10 -right-10 opacity-[0.03] pointer-events-none" style={{ color: colors.gold }}>
+                 {selectedPilar.icon && React.cloneElement(selectedPilar.icon, { size: 400 })}
+               </div>
+               
+               <div className="relative z-10 animate-in fade-in duration-500">
+                 <h3 className="text-4xl font-serif mb-3" style={{ color: colors.black }}>{selectedPilar.title}</h3>
+                 <p className="text-gold font-medium mb-10 text-xl italic" style={{ color: colors.gold }}>{selectedPilar.desc}</p>
+                 
+                 <div className="space-y-6 mb-12">
+                   {selectedPilar.items.map((item, i) => (
+                     <div key={i} className="flex items-start gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transform transition-transform hover:scale-[1.01]">
+                       <div className="mt-1 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center border border-gold" style={{ borderColor: colors.gold }}>
+                         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.gold }}></div>
+                       </div>
+                       <span className="text-gray-700 leading-relaxed font-light">{item}</span>
+                     </div>
+                   ))}
+                 </div>
+                 
+                 <p className="text-sm tracking-wider text-gray-400 border-t pt-8 uppercase" style={{ borderColor: colors.gold + '40' }}>
+                   {selectedPilar.footer}
+                 </p>
+               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DEVERES DO LOCADOR */}
+      <section id="deveres" className="py-28 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-5 mb-16">
+            <Home size={40} style={{ color: colors.gold }} />
+            <h2 className="text-3xl font-serif uppercase tracking-[0.2em]">Deveres do Locador (Art. 22)</h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 text-gray-700 leading-relaxed font-light">
+            <div className="bg-white p-8 border-l-4 shadow-sm hover:shadow-md transition-all group" style={{ borderLeftColor: colors.gold }}>
+              <div className="flex items-center gap-4 mb-4">
+                 <Zap className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold">Habitabilidade</h3>
+              </div>
+              <p>Entregar o imóvel em pleno estado de servir ao uso. Redes elétricas e hidráulicas funcionais no ato das chaves.</p>
+            </div>
+            <div className="bg-white p-8 border-l-4 shadow-sm hover:shadow-md transition-all group" style={{ borderLeftColor: colors.gold }}>
+              <div className="flex items-center gap-4 mb-4">
+                 <Receipt className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold">Extraordinários</h3>
+              </div>
+              <p>Arcar com custos que valorizam o edifício: pinturas de fachada, instalação de segurança e fundos específicos.</p>
+            </div>
+            <div className="bg-white p-8 border-l-4 shadow-sm hover:shadow-md transition-all group" style={{ borderLeftColor: colors.gold }}>
+              <div className="flex items-center gap-4 mb-4">
+                 <ShieldAlert className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold">Vícios Ocultos</h3>
+              </div>
+              <p>Responsabilidade objetiva por problemas anteriores à locação não detectados na vistoria técnica inicial.</p>
+            </div>
+            <div className="bg-white p-8 border-l-4 shadow-sm hover:shadow-md transition-all group" style={{ borderLeftColor: colors.gold }}>
+              <div className="flex items-center gap-4 mb-4">
+                 <FileText className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold">Impostos</h3>
+              </div>
+              <p>Pagamento de IPTU e seguro incêndio, salvo se o contrato contiver cláusula expressa transferindo essa obrigação.</p>
+            </div>
+            <div className="bg-white p-8 border-l-4 shadow-sm hover:shadow-md transition-all group" style={{ borderLeftColor: colors.gold }}>
+              <div className="flex items-center gap-4 mb-4">
+                 <Droplets className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold">Estrutural</h3>
+              </div>
+              <p>Zelar pela estanqueidade de telhados, paredes e tubulações principais. O locador preserva o valor patrimonial.</p>
+            </div>
+            <div className="bg-white p-8 border-l-4 shadow-sm hover:shadow-md transition-all group" style={{ borderLeftColor: colors.gold }}>
+              <div className="flex items-center gap-4 mb-4">
+                 <Check className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold">Recibos</h3>
+              </div>
+              <p>Fornecer obrigatoriamente recibos discriminados de cada pagamento, vedada a quitação genérica sem detalhes.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DEVERES DO LOCATÁRIO */}
+      <section className="py-28 px-6 bg-white shadow-inner">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-5 mb-16">
+            <User size={40} style={{ color: colors.gold }} />
+            <h2 className="text-3xl font-serif uppercase tracking-[0.2em]">Deveres do Locatário (Art. 23)</h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 text-gray-700 leading-relaxed font-light">
+            <div className="bg-gray-50 p-8 border shadow-sm rounded-lg hover:border-gold transition-all group">
+              <div className="flex items-center gap-4 mb-4">
+                 <Receipt className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold" style={{ color: colors.gold }}>Pontualidade</h3>
+              </div>
+              <p>Adimplir rigorosamente o aluguel e encargos ordinários. A pontualidade sustenta a confiança contratual.</p>
+            </div>
+            <div className="bg-gray-50 p-8 border shadow-sm rounded-lg hover:border-gold transition-all group">
+              <div className="flex items-center gap-4 mb-4">
+                 <Droplets className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold" style={{ color: colors.gold }}>Encargos</h3>
+              </div>
+              <p>Pagar despesas de manutenção coletiva: limpeza, luz de áreas comuns e salários do corpo diretivo do prédio.</p>
+            </div>
+            <div className="bg-gray-50 p-8 border shadow-sm rounded-lg hover:border-gold transition-all group">
+              <div className="flex items-center gap-4 mb-4">
+                 <ShieldCheck className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold" style={{ color: colors.gold }}>Zelo</h3>
+              </div>
+              <p>Tratar o imóvel com o mesmo cuidado que teria se fosse seu, respeitando estritamente a finalidade pactuada.</p>
+            </div>
+            <div className="bg-gray-50 p-8 border shadow-sm rounded-lg hover:border-gold transition-all group">
+              <div className="flex items-center gap-4 mb-4">
+                 <AlertCircle className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold" style={{ color: colors.gold }}>Aviso</h3>
+              </div>
+              <p>Informar imediatamente o locador sobre danos estruturais, sob pena de responder pelo agravamento do defeito.</p>
+            </div>
+            <div className="bg-gray-50 p-8 border shadow-sm rounded-lg hover:border-gold transition-all group">
+              <div className="flex items-center gap-4 mb-4">
+                 <Paintbrush className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold" style={{ color: colors.gold }}>Restituição</h3>
+              </div>
+              <p>Restituir o imóvel no estado em que o recebeu, salvo as deteriorações decorrentes do uso normal do tempo.</p>
+            </div>
+            <div className="bg-gray-50 p-8 border shadow-sm rounded-lg hover:border-gold transition-all group">
+              <div className="flex items-center gap-4 mb-4">
+                 <Gavel className="opacity-40 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }} size={24} />
+                 <h3 className="font-serif text-lg text-black font-semibold" style={{ color: colors.gold }}>Regimento</h3>
+              </div>
+              <p>Cumprir integralmente a Convenção e o Regimento Interno, respondendo por infrações do uso comum.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-32 px-6 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-col items-center mb-20 text-center">
+            <MessageSquareQuote size={40} style={{ color: colors.gold }} className="mb-4 opacity-40" />
+            <h2 className="text-4xl font-serif text-black uppercase tracking-[0.2em]">FAQ</h2>
+            <p className="text-gray-400 text-sm mt-2 uppercase tracking-widest font-light">Respostas Estratégicas às Dúvidas Frequentes</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {faqData.map((item, index) => (
+              <div 
+                key={index} 
+                className={`group transition-all duration-300 rounded-2xl border bg-white ${activeFaq === index ? 'shadow-xl' : 'hover:shadow-md'}`}
+                style={{ borderColor: activeFaq === index ? colors.gold : '#E5E7EB' }}
+              >
+                <button
+                  onClick={() => toggleFaq(index)}
+                  className="w-full py-7 px-8 flex justify-between items-center text-left focus:outline-none"
+                >
+                  <div className="flex items-center gap-6">
+                    <span className="hidden sm:block text-xs font-serif opacity-20 group-hover:opacity-100 transition-opacity" style={{ color: colors.gold }}>
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className={`font-serif text-xl tracking-tight transition-colors ${activeFaq === index ? 'text-gold' : 'text-black'}`} style={{ color: activeFaq === index ? colors.gold : '' }}>
+                      {item.q}
+                    </span>
+                  </div>
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-500 ${activeFaq === index ? 'rotate-180 bg-gold border-gold' : 'border-gray-200 group-hover:border-gold'}`}>
+                    <ChevronDown size={18} style={{ color: activeFaq === index ? 'white' : colors.gold }} />
+                  </div>
+                </button>
+
+                <div className={`transition-all duration-500 ease-in-out overflow-hidden ${activeFaq === index ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="px-8 pb-8 pt-0 flex gap-6">
+                    <div className="hidden sm:block w-px bg-gray-100 self-stretch ml-[14px]"></div>
+                    <div className="text-gray-600 leading-relaxed text-lg font-light italic text-justify">
+                      {item.a}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CHECKLIST */}
+      <section id="checklist" className="py-32 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-3xl font-serif uppercase tracking-[0.3em]">Checklist Preventivo</h2>
+            <div className="h-px w-32 bg-gold mx-auto mt-6" style={{ backgroundColor: colors.gold }}></div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-16">
+            <div className="flex flex-col h-full font-light">
+              <div className="flex items-center gap-4 border-b pb-6 mb-8" style={{ borderColor: colors.gold }}>
+                <CheckCircle2 style={{ color: colors.gold }} size={32} />
+                <h3 className="text-2xl font-serif uppercase tracking-tight">Estratégia do Locador</h3>
+              </div>
+              <ul className="space-y-6 text-gray-700 flex-grow font-light">
+                {["Laudo de vistoria técnico descritivo e fotográfico", "Análise cadastral jurídica e financeira rigorosa", "Revisão preventiva de infraestrutura crítica", "Documentação e certidões do imóvel conferidas"].map((li, i) => (
+                  <li key={i} className="flex items-center gap-4">
+                    <div className="w-6 h-6 border rounded-md flex-shrink-0 flex items-center justify-center" style={{ borderColor: colors.gold }}>
+                      <Check size={14} style={{ color: colors.gold }} />
+                    </div>
+                    <span>{li}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-12 p-8 bg-gray-50 rounded-3xl border-l-4" style={{ borderLeftColor: colors.gold }}>
+                <h4 className="font-bold text-black mb-3 flex items-center gap-2">
+                  <AlertCircle size={20} style={{ color: colors.gold }} /> Erros Comuns que geram Prejuízo:
+                </h4>
+                <p className="text-sm text-gray-500 italic leading-relaxed font-light">Não formalizar autorizações de benfeitorias por escrito e utilizar minutas genéricas que não contemplam as particularidades do imóvel.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col h-full font-light">
+              <div className="flex items-center gap-4 border-b pb-6 mb-8" style={{ borderColor: colors.gold }}>
+                <CheckCircle2 style={{ color: colors.gold }} size={32} />
+                <h3 className="text-2xl font-serif uppercase tracking-tight">Estratégia do Locatário</h3>
+              </div>
+              <ul className="space-y-6 text-gray-700 flex-grow font-light">
+                {["Conferência minuciosa do estado físico inicial", "Registro documental de avarias não listadas em laudo", "Análise integral da Convenção Condominial", "Verificação de pressões, registros e vazamentos"].map((li, i) => (
+                  <li key={i} className="flex items-center gap-4">
+                    <div className="w-6 h-6 border rounded-md flex-shrink-0 flex items-center justify-center" style={{ borderColor: colors.gold }}>
+                      <Check size={14} style={{ color: colors.gold }} />
+                    </div>
+                    <span>{li}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-12 p-8 bg-gray-50 rounded-3xl border-l-4" style={{ borderLeftColor: colors.gold }}>
+                <h4 className="font-bold text-black mb-3 flex items-center gap-2">
+                  <AlertCircle size={20} style={{ color: colors.gold }} /> Erros Comuns que geram Prejuízo:
+                </h4>
+                <p className="text-sm text-gray-500 italic leading-relaxed font-light">Realizar reparos estruturais por conta própria sem notificação formal e ignorar as regras de convívio do regimento interno.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER / CONTATO */}
+      <footer id="contato" className="py-32 px-6 text-center" style={{ backgroundColor: colors.black }}>
+        <div className="max-w-5xl mx-auto">
+          <Logo />
+          
+          <h2 className="text-3xl font-serif text-white mb-8 uppercase tracking-[0.4em]">
+            A Prevenção é o Melhor Patrimônio
+          </h2>
+          <p className="text-gray-400 max-w-2xl mx-auto mb-20 text-lg text-justify leading-relaxed font-light">
+            A advocacia consultiva é o pilar de uma relação locatícia próspera. Conflitos imobiliários surgem, em sua maioria, da ambiguidade contratual e da ausência de orientação técnica prévia. Proteger seu investimento e resguardar seu direito exige uma abordagem estratégica e personalizada.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-white text-xs uppercase tracking-[0.2em] mb-20 border-y py-16 items-center justify-items-center" style={{ borderColor: colors.grayDark }}>
+            <div className="flex flex-col gap-6 items-center">
+               <a href="https://wa.me/5511999325205" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-gold transition-colors">
+                 <MessageCircle size={18} style={{ color: colors.gold }} /> (11) 99932-5205
+               </a>
+               <a href="mailto:gabrielamacedo.adv@outlook.com" className="flex items-center gap-4 hover:text-gold transition-colors lowercase font-sans tracking-normal text-sm">
+                 <Mail size={18} style={{ color: colors.gold }} /> gabrielamacedo.adv@outlook.com
+               </a>
+            </div>
+            <div className="flex flex-col gap-6 items-center">
+               <a href="https://instagram.com/gabrielamacedo.adv" className="flex items-center gap-4 hover:text-gold transition-colors lowercase font-sans tracking-normal text-sm">
+                 <Instagram size={18} style={{ color: colors.gold }} /> @gabrielamacedo.adv
+               </a>
+               <div className="flex items-center gap-4">
+                 <ShieldCheck size={18} style={{ color: colors.gold }} /> OAB/SP 520.862
+               </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <p className="text-white font-serif uppercase tracking-[0.4em] text-2xl mb-3">
+              Dra. Gabriela Macedo
+            </p>
+            <p className="text-xs tracking-[0.3em] uppercase opacity-70" style={{ color: colors.gold }}>
+              Advocacia Imobiliária Estratégica
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
